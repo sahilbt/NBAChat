@@ -21,10 +21,10 @@ function DisplayTeam(props: {
 
 function CurrentGames() {
   return (
-    <div className="p-8 flex flex-col items-center h-full">
+    <div className="p-8 flex flex-col items-center h-full ">
       <h1 className="text-3xl font-bold mb-8 underline">Current Games</h1>
-      <div className="border-2 border-gray-300 rounded-lg p-6 w-full max-w-2xl">
-        <div className="grid grid-cols-2 gap-4">
+      <div className="border-2 border-gray-300 rounded-lg p-6 w-full max-w-2xl bg-[#e0e1dd]">
+        <div className="grid grid-cols-2 gap-10">
           {TEAMS.map((team) => (
             <DisplayTeam key={team.id} url={team.url} altText={team.alt} />
           )
