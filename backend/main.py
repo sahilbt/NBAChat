@@ -1,4 +1,6 @@
-from typing import Union
+from database import (
+    write_message_to_db
+)
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
@@ -13,7 +15,8 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            # TODO Write text from client to database
-            await websocket.send_text(f'Message text was: {data}')
+            # TODO: Make an actual protocol for checking the payload
+            write_message_to_db(data)
+            await websocket.send_text(f'Text received was: {data}')
     except WebSocketDisconnect:
         print('Client disconnected')
