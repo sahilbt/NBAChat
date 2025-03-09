@@ -3,7 +3,23 @@
 ## Installation
 
 1. Create a python virtual environment and activate
+```
+python3 -m venv venv
+source venv/bin/activate
+```
+**Note:** This is for MacOS
+
 2. Install dependencies from `requirements.txt`
+```
+pip install -r requirements.txt
+```
+
+3. Add a file called `.env` and copy content from `.env.example`. Add your actual MongoDB credentials
+```
+# .env
+MONGO_USER=USERNAME
+MONGO_PASSWORD=PASSWORD
+```
 
 ## Running the server
 
