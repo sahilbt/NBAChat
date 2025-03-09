@@ -11,8 +11,8 @@ function DisplayTeam(props: {
       <Image
         src={`/teams/${props.url}`}
         alt={props.altText}
-        width={80}
-        height={80}
+        width={150}
+        height={150}
         className="rounded-full"
       />
     </div>
