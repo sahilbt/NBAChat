@@ -6,6 +6,18 @@ from typing import List
 
 app = FastAPI()
 
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/messages/send-message", response_model = RetrievedMessage)
 async def send_message(message: CreatedMessage):
