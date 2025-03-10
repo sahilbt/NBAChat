@@ -1,7 +1,7 @@
 from database import *
 from schema import *
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, CORSMiddleware
 from typing import List
 
 app = FastAPI()
