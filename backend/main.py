@@ -19,15 +19,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/messages/send-message", response_model = RetrievedMessage)
-async def send_message(message: CreatedMessage):
-    return write_message_to_db(message)
+@app.websocket("/messages/send-message")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        message = await websocket.receive_json()
+        message_obj = CreatedMessage(**message)
+        new_message = write_message_to_db(message_obj)
+        await websocket.send_json(new_message)
+    except WebSocketDisconnect:
+        print('Client disconnected')
 
 
-@app.get("/messages/get-all", response_model = List[RetrievedMessage])
-async def get_all_messages():
-    return read_all_message_from_db()
-
+@app.websocket("/messages/get-all-messages")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        all_messages = read_all_message_from_db
+        await websocket.send_json(all_messages)
+    except WebSocketDisconnect:
+        print('Client disconnected')
 
 # User collection
 @app.websocket("/addUser")
