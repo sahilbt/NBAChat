@@ -1,4 +1,6 @@
 from pymongo import MongoClient
+from typing import List
+
 from schema import *
 
 from utils import (
@@ -15,7 +17,7 @@ client = MongoClient(CONNECTION_STRING)
 db = client.NBAChat
 
 
-def write_message_to_db(message: CreatedMessage):
+def write_message_to_db(message: CreatedMessage) -> RetrievedMessage:
   collection = db.messages
 
   document = DocumentMessage(
@@ -27,16 +29,18 @@ def write_message_to_db(message: CreatedMessage):
   result = collection.insert_one(document.model_dump(by_alias=True))
   print(f'[LOG] Inserted document with ID: {result.inserted_id}')
 
-  create_message = collection.find_one({'_id': result.inserted_id})
-  return create_message
+  db_message = collection.find_one({'_id': result.inserted_id})
+  return RetrievedMessage(**db_message)
 
 
-def read_all_message_from_db():
+def read_all_message_from_db() -> List[RetrievedMessage]:
   collection = db.messages
+
   result = list(collection.find({}))
-  
   print(f'[LOG] Message collection: {result}')
-  return result
+  
+  messages = [RetrievedMessage(**message) for message in result]
+  return messages
 
 
 # User Collection

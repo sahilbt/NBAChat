@@ -27,7 +27,7 @@ async def websocket_endpoint(websocket: WebSocket):
         message = await websocket.receive_json()
         message_obj = CreatedMessage(**message)
         new_message = write_message_to_db(message_obj)
-        await websocket.send_json(new_message)
+        await websocket.send_json(new_message.model_dump())
     except WebSocketDisconnect:
         print('Client disconnected')
 
@@ -36,10 +36,12 @@ async def websocket_endpoint(websocket: WebSocket):
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
-        all_messages = read_all_message_from_db
-        await websocket.send_json(all_messages)
+        all_messages = read_all_message_from_db()
+        messages_json = [message.model_dump() for message in all_messages]
+        await websocket.send_json(messages_json)
     except WebSocketDisconnect:
         print('Client disconnected')
+
 
 # User collection
 @app.websocket("/addUser")
