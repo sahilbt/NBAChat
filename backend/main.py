@@ -1,6 +1,7 @@
 from database import *
 from schema import *
 
+import asyncio
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
@@ -20,6 +21,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+new_message_event = asyncio.Event()
+
 @app.websocket("/messages/send-message")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -28,6 +31,7 @@ async def websocket_endpoint(websocket: WebSocket):
             message = await websocket.receive_json()
             message_obj = CreatedMessage(**message)
             new_message = write_message_to_db(message_obj)
+            new_message_event.set()
             await websocket.send_json(new_message.model_dump())
     except WebSocketDisconnect:
         print('Client disconnected')
@@ -36,10 +40,19 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.websocket("/messages/get-all-messages")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+
+    # Send inital messages
+    all_messages = read_all_message_from_db()
+    messages_json = [message.model_dump() for message in all_messages]
+    await websocket.send_json(messages_json)
     try:
-        all_messages = read_all_message_from_db()
-        messages_json = [message.model_dump() for message in all_messages]
-        await websocket.send_json(messages_json)
+        while True:
+            # Wait for message event, and send updated messages
+            await new_message_event.wait()
+            all_messages = read_all_message_from_db()
+            messages_json = [message.model_dump() for message in all_messages]
+            await websocket.send_json(messages_json)
+            new_message_event.clear()
     except WebSocketDisconnect:
         print('Client disconnected')
 
