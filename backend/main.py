@@ -24,10 +24,11 @@ app.add_middleware(
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
-        message = await websocket.receive_json()
-        message_obj = CreatedMessage(**message)
-        new_message = write_message_to_db(message_obj)
-        await websocket.send_json(new_message.model_dump())
+        while True:
+            message = await websocket.receive_json()
+            message_obj = CreatedMessage(**message)
+            new_message = write_message_to_db(message_obj)
+            await websocket.send_json(new_message.model_dump())
     except WebSocketDisconnect:
         print('Client disconnected')
 
