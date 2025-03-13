@@ -43,3 +43,21 @@ python3 main.py --port 8000
 python3 main.py --port 8001
 python3 main.py --port 8002
 ```
+
+## Testing
+
+1. Initialize servers
+```
+python3 main.py --port 8000
+python3 main.py --port 8001
+python3 main.py --port 8002
+```
+
+2. Open swagger docs for port 8001 or 8002
+```
+https://localhost:8001/docs
+```
+
+3. Send a message using the `/post/servers/message/{port}` endpoint. Specify the `port = 8000`
+
+4. Check terminal of server running on port 8000 for the results
