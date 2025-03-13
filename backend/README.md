@@ -21,18 +21,25 @@ MONGO_USER=USERNAME
 MONGO_PASSWORD=PASSWORD
 ```
 
-## Running the server
+## Running single server
 
-How to run the server
-
-### Running the server in dev mode
-1. Run the server in dev
+1. Initialize server and specify port number
 ```
-fastapi dev
+python3 main.py --port 8000
 ```
 
-### Running the server in prod mode
-1. Run the server in prod mode
+## Running multiple servers
+
+With the current implementation, it's assumed that the server with lowest value/first server to be instantiated is the primary server.
+
+For example, given the ports `[8000, 8001, 8002]`, the primary server would be 8000.
+
+1. Initialize primary server
 ```
-fastapi run
+python3 main.py --port 8000
+```
+2. Initialize replica servers
+```
+python3 main.py --port 8001
+python3 main.py --port 8002
 ```

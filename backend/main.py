@@ -1,12 +1,15 @@
 from database import *
 from schema import *
+from server import *
 
+import argparse
 import asyncio
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List
+import uvicorn
 
-app = FastAPI()
+
+app = FastAPI(lifespan=lifespan)
 
 origins = [
     "http://localhost:3000",
@@ -22,6 +25,7 @@ app.add_middleware(
 )
 
 new_message_event = asyncio.Event()
+
 
 @app.websocket("/messages/send-message")
 async def websocket_endpoint(websocket: WebSocket):
@@ -57,6 +61,35 @@ async def websocket_endpoint(websocket: WebSocket):
         print('Client disconnected')
 
 
+@app.websocket("/ws/servers/link-nodes")
+async def link_server(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            message = await websocket.receive_text()
+            print(f'[LOG] Received message: {message}')
+    except:
+        print(f'[ERROR] Connection went down')
+
+
+@app.post("/post/servers/message/{port}")
+async def message_server(port: int, message: str):
+    # TODO: Fix this so it sends the JSON payload of server state
+    websocket = ACTIVE_CONNECTIONS.get(port)
+    if websocket:
+        try: 
+            await websocket.send(message)
+            return {'message': f'message was delivered to port {port}'}
+        except:
+            print(f'[LOG] Server running on port {port} is not running. Deleting from active connections')
+            ACTIVE_CONNECTIONS[port] = None
+
+
+@app.get("/get/ping-server")
+async def ping_server():
+    return {'message': f'Hello from server {app.state.port}'}
+
+
 # User collection
 @app.websocket("/addUser")
 async def websocket_endpoint(websocket: WebSocket):
@@ -79,3 +112,12 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_text(f'Text received was: {data}')
     except WebSocketDisconnect:
         print('Client disconnected')
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--port', type=int, required=True, help='Port number to run server on')
+    args = parser.parse_args()
+    app.state.port = args.port
+
+    uvicorn.run(app, host='localhost', port=args.port)
