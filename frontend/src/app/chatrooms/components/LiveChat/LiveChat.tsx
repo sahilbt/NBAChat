@@ -2,13 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { IoIosSend } from "react-icons/io";
 import Message from "./Message";
 
-const LiveChat = () =>{
+const LiveChat = () => {
     const [nameValue, setNameValue] = useState('');
     const [inputValue, setInputValue] = useState('');
     const [messages, setMessages] = useState<JSON[]>([]);
-    const sendSocketRef = useRef<WebSocket | null>(null); 
-    const receiveSocketRef = useRef<WebSocket | null>(null); 
-    const isClosingOrClosed = useRef(false); 
+    const sendSocketRef = useRef<WebSocket | null>(null);
+    const receiveSocketRef = useRef<WebSocket | null>(null);
+    const isClosingOrClosed = useRef(false);
 
     useEffect(() => {
         // Need to change logic on sending data from backend***
@@ -21,9 +21,9 @@ const LiveChat = () =>{
         };
         sendSocketRef.current.onclose = () => {
             console.log("WebSocket for sending messages closed");
-            isClosingOrClosed.current = true; 
+            isClosingOrClosed.current = true;
         };
-        
+
         // Need to change logic on recieving data from backend***
         receiveSocketRef.current = new WebSocket("ws://localhost:8000/ws/client/link_client");
         receiveSocketRef.current.onopen = () => {
@@ -36,21 +36,21 @@ const LiveChat = () =>{
             console.log("WebSocket for receiving messages closed");
         };
         receiveSocketRef.current.onmessage = (event) => {
-            setMessages(JSON.parse(event.data)); 
+            setMessages(JSON.parse(event.data));
             console.log(messages)
         };
 
         return () => {
             if (sendSocketRef.current && !isClosingOrClosed.current) {
-                sendSocketRef.current.close(); 
+                sendSocketRef.current.close();
                 console.log("WebSocket for sending messages closed");
             }
             if (receiveSocketRef.current) {
-                receiveSocketRef.current.close(); 
+                receiveSocketRef.current.close();
                 console.log("WebSocket for receiving messages closed");
             }
         };
-    }, []); 
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
@@ -63,12 +63,12 @@ const LiveChat = () =>{
     const sendMessage = (e: React.MouseEvent) => {
         if (sendSocketRef.current && sendSocketRef.current.readyState === WebSocket.OPEN && nameValue !== '') {
             const json = {
-                user: nameValue, 
-                text: inputValue, 
+                user: nameValue,
+                text: inputValue,
             };
-            sendSocketRef.current.send(JSON.stringify(json)); 
+            sendSocketRef.current.send(JSON.stringify(json));
             console.log("Sent message:", json);
-            setInputValue(""); 
+            setInputValue("");
         } else {
             console.error("WebSocket for sending is not open or initialized");
         }
@@ -83,7 +83,7 @@ const LiveChat = () =>{
             {/* chat area -> might need to make it a seperate component*/}
             <div className="border black h-[65%] w-[90%] pt-[1%] pl-[1%] mb-[4%] overflow-y-auto max-h-[65%]">
                 {messages.map((message: any) => (
-                    <Message 
+                    <Message
                         user={message.user}
                         content={message.text}
                     />
@@ -93,28 +93,28 @@ const LiveChat = () =>{
             {/* messaging area */}
             <div className="flex h-[10%] w-[90%] mb-[2%]">
                 <div className="border w-[90%] mr-[2%]">
-                <label>
-                    <input 
-                        className="text-1xl pl-[2%] pr-[2%] w-full h-full" 
-                        placeholder='Type here...'
-                        value={inputValue}
-                        onChange={handleChange}
-                    />
-                </label>
+                    <label>
+                        <input
+                            className="text-1xl pl-[2%] pr-[2%] w-full h-full"
+                            placeholder='Type here...'
+                            value={inputValue}
+                            onChange={handleChange}
+                        />
+                    </label>
                 </div>
                 <div className="w-[5%]">
-                    <IoIosSend 
+                    <IoIosSend
                         className="active:scale-120 w-full h-full"
                         onClick={sendMessage}
                     />
                 </div>
             </div>
             <div className="border border-black mb-[2%]">
-            <input 
-                className="border-none pl-[3%] pr-[3%] w-full " 
-                placeholder='Enter username here...'
-                value={nameValue}
-                onChange={handleNameChange}
+                <input
+                    className="border-none pl-[3%] pr-[3%] w-full "
+                    placeholder='Enter username here...'
+                    value={nameValue}
+                    onChange={handleNameChange}
                 />
             </div>
         </div>
