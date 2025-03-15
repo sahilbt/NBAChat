@@ -69,8 +69,8 @@ async def link_server(websocket: WebSocket):
             message = await websocket.receive_json()
             print(f'[LOG] Received message: {message}')
 
-            if message.get("first_connection"):
-                target_port = int(message["first_connection"])
+            if message["type"] == "first_connection":
+                target_port = int(message["port"])
                 print(f'[LOG] Received connection from port: {target_port}')
 
                 if ACTIVE_CONNECTIONS[target_port] is None:

@@ -34,7 +34,7 @@ async def create_connection(self_port: int, target_port: int):
         print(f'[LOG] Connected to {target_port}')
         ACTIVE_CONNECTIONS[target_port] = websocket
 
-        message = {"first_connection": f"{self_port}"}
+        message = {"type": "first_connection", "port": f"{self_port}"}
         await websocket.send(json.dumps(message))
     except WebSocketDisconnect:
         ACTIVE_CONNECTIONS[target_port] = None
