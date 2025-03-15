@@ -66,10 +66,22 @@ async def link_server(websocket: WebSocket):
     await websocket.accept()
     try:
         while True:
-            message = await websocket.receive_text()
+            message = await websocket.receive_json()
             print(f'[LOG] Received message: {message}')
-    except:
-        print(f'[ERROR] Connection went down')
+
+            if message.get("first_connection"):
+                target_port = int(message["first_connection"])
+                print(f'[LOG] Received connection from port: {target_port}')
+
+                if ACTIVE_CONNECTIONS[target_port] is None:
+                    print(f'[LOG] Connection to {target_port} does not exist. Creating connection...')
+                    print(SELF_PORT[0])
+                    asyncio.create_task(create_connection(SELF_PORT[0], target_port))
+                else:
+                    print(f'[LOG] Connection to {target_port} already exists')
+
+    except WebSocketDisconnect:
+        print(f'[ERROR] Connection went down!')
 
 
 @app.post("/post/servers/message/{port}")
