@@ -102,30 +102,6 @@ async def ping_server():
     return {'message': f'Hello from server {app.state.port}'}
 
 
-# User collection
-@app.websocket("/addUser")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    try:
-        while True:
-            data_Username = await websocket.receive_text()
-            data_Password = await websocket.receive_text()
-            # TODO: Make an actual protocol for checking the payload
-            add_user_to_db(data_Username, data_Password)
-            await websocket.send_text(f'Text sent was: {data_Username, data_Password}')
-    except WebSocketDisconnect:
-        print('Client disconnected')
-
-@app.websocket("/getUser")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    try:
-        data = get_user_from_db()
-        await websocket.send_text(f'Text received was: {data}')
-    except WebSocketDisconnect:
-        print('Client disconnected')
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, required=True, help='Port number to run server on')
