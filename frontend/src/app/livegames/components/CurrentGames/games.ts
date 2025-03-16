@@ -1,8 +1,8 @@
 export const GAMES = [
   {
     id: 1,
-    homeTeam: "Portland Trailblazers",
-    homeTeamImg: "trailblazers.svg",
+    homeTeam: "Chicago Bulls",
+    homeTeamImg: "bulls.svg",
     awayTeam: "Los Angeles Lakers",
     awayTeamImg: "lakers.svg",
   },
