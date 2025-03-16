@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect, useRef } from 'react';
 import { IoIosSend } from "react-icons/io";
 import Message from "./Message";
