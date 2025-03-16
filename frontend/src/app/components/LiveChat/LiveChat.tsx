@@ -1,6 +1,5 @@
-import { SetStateAction, useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { IoIosSend } from "react-icons/io";
-import messages from './messages.json';
 import Message from "./Message";
 
 const LiveChat = () =>{
@@ -12,8 +11,8 @@ const LiveChat = () =>{
     const isClosingOrClosed = useRef(false); 
 
     useEffect(() => {
-        // Socket to send messages
-        sendSocketRef.current = new WebSocket("ws://localhost:8000/messages/send-message");
+        // Need to change logic on sending data from backend***
+        sendSocketRef.current = new WebSocket("ws://localhost:8000/ws/client/link_client");
         sendSocketRef.current.onopen = () => {
             console.log("Connected to WebSocket for sending messages");
         };
@@ -25,8 +24,8 @@ const LiveChat = () =>{
             isClosingOrClosed.current = true; 
         };
         
-        //Socket to recieve messages
-        receiveSocketRef.current = new WebSocket("ws://localhost:8000/messages/get-all-messages");
+        // Need to change logic on recieving data from backend***
+        receiveSocketRef.current = new WebSocket("ws://localhost:8000/ws/client/link_client");
         receiveSocketRef.current.onopen = () => {
             console.log("Connected to WebSocket for receiving messages");
         };
