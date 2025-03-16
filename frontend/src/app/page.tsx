@@ -19,10 +19,10 @@ export default function Home() {
               placeholder="Enter your username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gr  ay-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <Link href={`/chatrooms?username=${encodeURIComponent(username)}`}>
+          <Link href={`/livegames?username=${encodeURIComponent(username)}`}>
             <button
               disabled={!username}
               className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
