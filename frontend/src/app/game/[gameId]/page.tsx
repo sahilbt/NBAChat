@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import LiveChat from "../../livegames/components/LiveChat/LiveChat";
 
