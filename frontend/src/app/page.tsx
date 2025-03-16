@@ -27,7 +27,7 @@ export default function Home() {
               disabled={!username}
               className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Go to Chatrooms
+              Go to Live Games
             </button>
           </Link>
         </div>
