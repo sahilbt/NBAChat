@@ -26,8 +26,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-new_message_event = asyncio.Event()
-
 
 @app.websocket("/ws/client/link_client")
 async def websocket_endpoint(websocket: WebSocket):
@@ -85,26 +83,6 @@ async def websocket_endpoint(websocket: WebSocket):
         if CHAT_ID_FOR_DISCONNECT is not None and websocket in STATE[CHAT_ID_FOR_DISCONNECT].user_ws:
             print(f'[LOG] {USERNAME_FOR_DISCONNECT} has disconnected from chat room {CHAT_ID_FOR_DISCONNECT}. Removing from chat room list')
             STATE[CHAT_ID_FOR_DISCONNECT].user_ws.remove(websocket)
-
-# remove in the future
-@app.websocket("/messages/get-all-messages")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-
-    # Send inital messages
-    all_messages = read_all_message_from_db()
-    messages_json = [message.model_dump() for message in all_messages]
-    await websocket.send_json(messages_json)
-    try:
-        while True:
-            # Wait for message event, and send updated messages
-            await new_message_event.wait()
-            all_messages = read_all_message_from_db()
-            messages_json = [message.model_dump() for message in all_messages]
-            await websocket.send_json(messages_json)
-            new_message_event.clear()
-    except WebSocketDisconnect:
-        print('Client disconnected')
 
 
 @app.websocket("/ws/servers/link-nodes")
