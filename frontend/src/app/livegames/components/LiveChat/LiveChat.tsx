@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { IoIosSend } from "react-icons/io";
 import Message from "./Message";
 
@@ -68,12 +68,29 @@ const LiveChat = () => {
     const sendMessage = (e: React.MouseEvent) => {
         if (sendSocketRef.current && sendSocketRef.current.readyState === WebSocket.OPEN && nameValue !== '') {
             const json = {
-                user: nameValue,
-                text: inputValue,
+                type: "send_message",
+                chat_id: gameId,
+                username: nameValue,
+                text: inputValue
             };
             sendSocketRef.current.send(JSON.stringify(json));
             console.log("Sent message:", json);
             setInputValue("");
+        } else {
+            console.error("WebSocket for sending is not open or initialized");
+        }
+    };
+
+    // Username sent is from URL
+    const joinChatroom = (e: React.MouseEvent) => {
+        if (sendSocketRef.current && sendSocketRef.current.readyState === WebSocket.OPEN && username !== '') {
+            const json = {
+                type: "join_chat_room",
+                chat_id: gameId,
+                username: username
+            };
+            sendSocketRef.current.send(JSON.stringify(json));
+            console.log("Sent message:", json);
         } else {
             console.error("WebSocket for sending is not open or initialized");
         }
@@ -126,6 +143,7 @@ const LiveChat = () => {
     // )
     const params = useParams();
     const gameId = Number(params.gameId); // Extract game ID from the URL
+    const username = useSearchParams().get("username"); // Extract username from the URL
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -170,7 +188,6 @@ const LiveChat = () => {
                 </div>
             </div>
         </div>
-
     )
 }
 
