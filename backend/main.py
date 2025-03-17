@@ -117,7 +117,7 @@ async def link_server(websocket: WebSocket):
                         text=m["text"],
                         timestamp=m["timestamp"]
                     )
-                    all_messages.append(message_obj)
+                    new_messages.append(message_obj)
 
                 STATE[chat_id].messages = new_messages
                 
