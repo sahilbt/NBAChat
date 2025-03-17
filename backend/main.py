@@ -111,7 +111,7 @@ async def link_server(websocket: WebSocket):
                 all_messages = message["messages"]
                 new_messages = []
 
-                for m in new_messages:
+                for m in all_messages:
                     message_obj = Message(
                         username=m["username"],
                         text=m["text"],
@@ -124,7 +124,7 @@ async def link_server(websocket: WebSocket):
                 print(f'[LOG] State updated from server at port: {port}')
 
     except WebSocketDisconnect:
-        print(f'[ERROR] Connection went down!')
+        print(f'[LOG] A peer server has disconnected')
 
 
 @app.post("/servers/update")
