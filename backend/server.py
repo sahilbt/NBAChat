@@ -14,7 +14,8 @@ SELF_PORT = []
 
 # Local State of ChatRooms
 STATE = [ChatRoom(chat_id = 0,messages = [],user_ws = []), 
-         ChatRoom(chat_id = 1,messages = [],user_ws = [])]
+         ChatRoom(chat_id = 1,messages = [],user_ws = []),
+         ChatRoom(chat_id = 2,messages = [],user_ws = [])]
 
 ACTIVE_CONNECTIONS = {
     8000: None,
