@@ -6,12 +6,11 @@ import Message from "./Message";
 import { GAMES } from '../CurrentGames/games';
 
 const LiveChat = () => {
-    
-    const connections = ["ws://localhost:8000/ws/client/link_client", 
+    const connections = [
+                        "ws://localhost:8000/ws/client/link_client", 
                         "ws://localhost:8001/ws/client/link_client",
-                        "ws://localhost:8002/ws/client/link_client"]
-
-    var current_connection = 0
+                        "ws://localhost:8002/ws/client/link_client"
+                        ]   
 
     const [inputValue, setInputValue] = useState('');
     const [messages, setMessages] = useState<JSON[]>([]);
@@ -24,8 +23,7 @@ const LiveChat = () => {
     const [currentConnection, setCurrentConnection] = useState(0);
 
     useEffect(() => {
-        console.log("TRYING")
-        console.log(currentConnection)
+        console.log("Trying to connect to " + connections[currentConnection])
         socket.current = new WebSocket(connections[currentConnection]);
         socket.current.onopen = () => {
             console.log("Connected to WebSocket for sending messages");
@@ -41,14 +39,14 @@ const LiveChat = () => {
                 console.error("WebSocket for sending is not open or initialized");
             }
         };
+
         socket.current.onerror = (error) => {
-            setCurrentConnection((currentConnection+1) % connections.length)
-            console.log("CURRENT CONNECTION CHANGED")
-            console.log(current_connection)
+            setCurrentConnection((currentConnection + 1) % connections.length)
             console.error("WebSocket error for sending:", error);
         };
-
+        
         socket.current.onclose = () => {
+            setCurrentConnection((currentConnection + 1) % connections.length)
             console.log("WebSocket for sending messages closed");
         };
 
@@ -61,7 +59,7 @@ const LiveChat = () => {
         return () => {
             if (socket.current && !isClosingOrClosed.current) {
                 socket.current.close();
-                console.log("WebSocket for sending messages closed");
+                console.log("Cleanup: WebSocket for sending messages closed");
             }
         };
     }, [currentConnection]);

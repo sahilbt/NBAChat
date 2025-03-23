@@ -47,6 +47,30 @@ async def create_connection(self_port: int, target_port: int):
     except WebSocketDisconnect:
         ACTIVE_CONNECTIONS[target_port] = None
 
+async def create_reciprocol_connection(self_port: int, target_port: int):
+    uri = f'ws://localhost:{target_port}/ws/servers/link-nodes'
+    try:
+        websocket = await websockets.connect(uri)
+        print(f'[LOG] Connected to {target_port}')
+        ACTIVE_CONNECTIONS[target_port] = websocket
+
+        message = {"type": "reciprocol_connection", "port": f"{self_port}"}
+        await websocket.send(json.dumps(message))
+
+        for chat_id, c in enumerate(STATE):
+            print(f'[LOG] Updating {target_port} with message state for chat id: {chat_id}')
+            msg_json = [message.model_dump() for message in STATE[chat_id].messages]
+            updated_chat_information = {
+                    "type": "update",
+                    "port": SELF_PORT[0],
+                    "chat_id": chat_id,
+                    "messages": msg_json
+            }
+            await websocket.send(json.dumps(updated_chat_information))
+
+    except WebSocketDisconnect:
+        ACTIVE_CONNECTIONS[target_port] = None
+
 
 async def connect_to_servers(port: int):
     for server_port in ACTIVE_CONNECTIONS.keys():
