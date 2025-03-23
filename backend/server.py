@@ -20,8 +20,10 @@ STATE = [ChatRoom(chat_id = 0,messages = [],user_ws = []),
 ACTIVE_CONNECTIONS = {
     8000: None,
     8001: None,
-    8002: None,
+    8002: None
 }
+
+LEADER = None
 
 async def check_server_running(port: int):
     url = f'http://localhost:{port}/get/ping-server'

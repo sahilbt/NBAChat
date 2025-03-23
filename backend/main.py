@@ -134,10 +134,17 @@ async def link_server(websocket: WebSocket):
                 STATE[chat_id].messages = new_messages
                 
                 print(f'[LOG] State updated from server at port: {port}')
+            
+            if message["type"] == "leader":
+                leader = message["leader"]
+                LEADER = leader
+                print(f'[LOG] New leader instated: {leader}')
 
     except WebSocketDisconnect:
         print(f'[LOG] A peer server on port {PORT_FOR_DISCONNECT} has disconnected, removing from active connections')
         ACTIVE_CONNECTIONS[PORT_FOR_DISCONNECT] = None
+        
+        await leader_election()
 
 
 @app.post("/servers/update")
@@ -163,6 +170,34 @@ async def update_clients(updated_chat_info: dict, chat_id: int):
             STATE[chat_id].user_ws.remove(websocket)
         except Exception as e:
             print(f"[LOG] An unexpected error occured: {e}")
+
+
+@app.post("/servers/leader")
+async def leader_election():
+    if LEADER != SELF_PORT[0]:
+        smallestActive = SELF_PORT[0]
+        
+        for server_port in ACTIVE_CONNECTIONS.keys():
+            # If there is an active connection to a server port smaller than current port
+            if (int(server_port) < smallestActive) and (ACTIVE_CONNECTIONS[server_port] != None):
+                smallestActive = server_port
+        
+        if smallestActive == SELF_PORT[0]:
+            leader_message = {
+                "type": "leader",
+                "leader": SELF_PORT[0]
+            }
+            
+            for port, websocket in ACTIVE_CONNECTIONS.items():
+                if websocket:
+                    try: 
+                        # This is a python websocket, not a FastAPI websocket
+                        await websocket.send(json.dumps(leader_message))
+                        print(f'[LOG] Leader was delivered to server running on port {port}')
+                    except Exception as e:
+                        print(f'[LOG] Error: Server running on port {port} is not running. Deleting from active connections')
+                        ACTIVE_CONNECTIONS[port] = None
+                        print(f"[LOG] Error info: {e}")
 
 
 @app.get("/get/ping-server")
