@@ -1,0 +1,27 @@
+{
+    "0": {
+        "lebron_james": [
+            {"type":"join_chat_room", "chat_id":"0", "username":"lebron_james"},
+            {"type":"send_message", "chat_id": "0", "username": "lebron_james", "text": "this guy is not a fraud!"},
+            {"type":"send_message", "chat_id": "0", "username": "lebron_james", "text": "this guy is great!"}
+        ],
+        "kevin_durant": [
+            {"type":"join_chat_room", "chat_id":"0", "username":"kevin_durant"},
+            {"type":"send_message", "chat_id": "0", "username": "kevin_durant", "text": "wow"},
+            {"type":"send_message", "chat_id": "0", "username": "kevin_durant", "text": "cool shot!"}
+        ]
+    },
+    "1": {
+        "kobe": [
+            {"type":"join_chat_room", "chat_id":"1", "username":"kobe"},
+            {"type":"send_message", "chat_id": "1", "username": "kobe", "text": "nice!"},
+            {"type":"send_message", "chat_id": "1", "username": "kobe", "text": "amazing!"}
+        ],
+        "mj": [
+            {"type":"join_chat_room", "chat_id":"1", "username":"mj"},
+            {"type":"send_message", "chat_id": "1", "username": "mj", "text": "buzzer beater!"},
+            {"type":"send_message", "chat_id": "1", "username": "mj", "text": "dunk it"}
+        ]
+    }
+    
+}
