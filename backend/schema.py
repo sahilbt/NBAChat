@@ -2,7 +2,6 @@ from typing import List
 from fastapi import WebSocket
 from pydantic import BaseModel, Field, ConfigDict
 from typing_extensions import Annotated
-from pydantic.functional_validators import BeforeValidator
 
 MODEL_CONFIG = ConfigDict(populate_by_name = True, arbitrary_types_allowed = True, extra = "forbid")
 class Game(BaseModel):

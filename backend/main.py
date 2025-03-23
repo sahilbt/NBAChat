@@ -1,4 +1,3 @@
-from database import *
 from nba import *
 from schema import *
 from server import *
@@ -94,6 +93,7 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.websocket("/ws/servers/link-nodes")
 async def link_server(websocket: WebSocket):
     await websocket.accept()
+    PORT_FOR_DISCONNECT = None
     try:
         while True:
             message = await websocket.receive_json()
@@ -101,13 +101,19 @@ async def link_server(websocket: WebSocket):
 
             if message["type"] == "first_connection":
                 target_port = int(message["port"])
+                PORT_FOR_DISCONNECT = target_port
                 print(f'[LOG] Received connection from port: {target_port}')
 
                 if ACTIVE_CONNECTIONS[target_port] is None:
-                    print(f'[LOG] Connection to {target_port} does not exist. Creating connection...')
-                    asyncio.create_task(create_connection(SELF_PORT[0], target_port))
+                    print(f'[LOG] Connection to {target_port} does not exist. Creating reciprocol connection...')
+                    asyncio.create_task(create_reciprocol_connection(SELF_PORT[0], target_port))
                 else:
                     print(f'[LOG] Connection to {target_port} already exists')
+
+            if message["type"] == "reciprocol_connection":
+                port = message["port"]
+                PORT_FOR_DISCONNECT = port
+                print(f'[LOG] Recieved reciprocol connection from port: {port}')
 
             if message["type"] == "update":
                 port = message["port"]
@@ -130,7 +136,8 @@ async def link_server(websocket: WebSocket):
                 print(f'[LOG] State updated from server at port: {port}')
 
     except WebSocketDisconnect:
-        print(f'[LOG] A peer server has disconnected')
+        print(f'[LOG] A peer server on port {PORT_FOR_DISCONNECT} has disconnected, removing from active connections')
+        ACTIVE_CONNECTIONS[PORT_FOR_DISCONNECT] = None
 
 
 @app.post("/servers/update")
@@ -141,11 +148,10 @@ async def update_servers(updated_chat_info: dict):
                 # This is a python websocket, not a FastAPI websocket
                 await websocket.send(json.dumps(updated_chat_info))
                 print(f'[LOG] Update was delivered to server running on port {port}')
-            except WebSocketDisconnect:
-                print(f'[LOG] Server running on port {port} is not running. Deleting from active connections')
-                ACTIVE_CONNECTIONS[port] = None
             except Exception as e:
-                print(f"[LOG] An unexpected error occured: {e}")
+                print(f'[LOG] Error: Server running on port {port} is not running. Deleting from active connections')
+                ACTIVE_CONNECTIONS[port] = None
+                print(f"[LOG] Error info: {e}")
 
 
 async def update_clients(updated_chat_info: dict, chat_id: int):

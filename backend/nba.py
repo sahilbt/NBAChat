@@ -1,8 +1,7 @@
 from nba_api.live.nba.endpoints import scoreboard
 
 def get_team_name(team):
-  return f'{team['teamCity']} {team['teamName']}'
-
+  return f"{team['teamCity']} {team['teamName']}"
 
 def get_live_games():
   res = scoreboard.ScoreBoard().get_dict()
