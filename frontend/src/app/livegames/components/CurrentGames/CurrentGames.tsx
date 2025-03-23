@@ -10,40 +10,40 @@ function LiveGames() {
   const username = searchParams.get("username") || ""; // Extract username from query params
 
   return (
-    <div className="flex flex-col items-center h-full w-[30%]">
-      <h1 className="text-3xl font-bold mb-8 underline">Current Games</h1>
-      <div className="border-2 border-gray-300 rounded-lg p-6 w-full max-w-2xl bg-[#e0e1dd]">
+    <div className="flex flex-col items-center bg-gradient-to-r from-blue-900 via-white to-red-600 py-10 w-full">
+      <h2 className="text-3xl font-extrabold text-blue-900 border-b-4 border-red-600 pb-2 mb-8">Current Games</h2>
+      <div className="border-4 border-blue-500 rounded-2xl p-6 w-[90%] max-w-4xl bg-white shadow-xl">
         <div className="flex flex-col gap-5">
           {GAMES.map((game) => (
             <Link
               key={game.id}
               href={`/game/${game.id}?username=${encodeURIComponent(username)}`} // Preserve username
-              className="flex justify-between items-center p-4 border-2 border-gray-300 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
+              className="flex justify-between items-center p-4 border-2 border-gray-300 rounded-xl bg-gray-100 hover:bg-red-500 hover:text-white transition-colors cursor-pointer shadow-md"
             >
               {/* Away Team */}
               <div className="flex flex-col items-center">
                 <Image
                   src={`/teams/${game.awayTeamImg}`}
                   alt={game.awayTeam}
-                  width={0}
-                  height={0}
-                  style={{ width: '75%', height: 'auto' }}
+                  width={75}
+                  height={75}
+                  className="rounded-lg"
                 />
-                <p className="mt-2 text-sm text-center">{game.awayTeam}</p>
+                <p className="mt-2 text-sm text-center font-semibold">{game.awayTeam}</p>
               </div>
 
-              <div className="text-xl font-bold">@</div>
+              <div className="text-2xl font-bold">@</div>
 
               {/* Home Team */}
               <div className="flex flex-col items-center">
                 <Image
                   src={`/teams/${game.homeTeamImg}`}
                   alt={game.homeTeam}
-                  width={0}
-                  height={0}
-                  style={{ width: '75%', height: 'auto' }}
+                  width={75}
+                  height={75}
+                  className="rounded-lg"
                 />
-                <p className="mt-2 text-sm text-center">{game.homeTeam}</p>
+                <p className="mt-2 text-sm text-center font-semibold">{game.homeTeam}</p>
               </div>
             </Link>
           ))}
