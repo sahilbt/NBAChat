@@ -11,7 +11,8 @@ function LiveGames() {
 
   return (
     <div className="flex flex-col items-center bg-gradient-to-r from-blue-900 via-white to-red-600 py-10 w-full">
-      <h2 className="text-3xl font-extrabold text-blue-900 border-b-4 border-red-600 pb-2 mb-8">Current Games</h2>
+      <h2 className="text-4xl font-extrabold text-black-900 pb-4 mb-8">Welcome, {username}</h2>
+      <h3 className="text-3xl font-extrabold text-blue-900 border-b-4 border-red-600 pb-2 mb-8">Current Games</h3>
       <div className="border-4 border-blue-500 rounded-2xl p-6 w-[90%] max-w-4xl bg-white shadow-xl">
         <div className="flex flex-col gap-5">
           {GAMES.map((game) => (

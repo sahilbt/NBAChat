@@ -7,10 +7,10 @@ import { GAMES } from '../CurrentGames/games';
 
 const LiveChat = () => {
     const connections = [
-                        "ws://localhost:8000/ws/client/link_client", 
-                        "ws://localhost:8001/ws/client/link_client",
-                        "ws://localhost:8002/ws/client/link_client"
-                        ]   
+        "ws://localhost:8000/ws/client/link_client",
+        "ws://localhost:8001/ws/client/link_client",
+        "ws://localhost:8002/ws/client/link_client"
+    ]
 
     const [inputValue, setInputValue] = useState('');
     const [messages, setMessages] = useState<JSON[]>([]);
@@ -44,7 +44,7 @@ const LiveChat = () => {
             setCurrentConnection((currentConnection + 1) % connections.length)
             console.error("WebSocket error for sending:", error);
         };
-        
+
         socket.current.onclose = () => {
             setCurrentConnection((currentConnection + 1) % connections.length)
             console.log("WebSocket for sending messages closed");
@@ -64,9 +64,9 @@ const LiveChat = () => {
         };
     }, [currentConnection]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInputValue(e.target.value);
-    };
+    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     setInputValue(e.target.value);
+    // };
 
     const sendMessage = () => {
         if (socket.current && socket.current.readyState === WebSocket.OPEN) {
