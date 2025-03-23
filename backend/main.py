@@ -1,4 +1,5 @@
 from database import *
+from nba import *
 from schema import *
 from server import *
 from utils import *
@@ -25,6 +26,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get('/get/todays_games')
+async def get_nba_games():
+    return {'message': get_live_games()}
 
 
 @app.websocket("/ws/client/link_client")
