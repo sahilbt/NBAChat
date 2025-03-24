@@ -20,7 +20,8 @@ STATE = [ChatRoom(chat_id = 0,messages = [],user_ws = []),
 ACTIVE_CONNECTIONS = {
     8000: None,
     8001: None,
-    8002: None
+    8002: None,
+    8003: None
 }
 
 LEADER = None

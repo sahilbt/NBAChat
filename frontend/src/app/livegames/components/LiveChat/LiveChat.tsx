@@ -9,7 +9,8 @@ const LiveChat = () => {
     const connections = [
         "ws://localhost:8000/ws/client/link_client",
         "ws://localhost:8001/ws/client/link_client",
-        "ws://localhost:8002/ws/client/link_client"
+        "ws://localhost:8002/ws/client/link_client",
+        "ws://localhost:8003/ws/client/link_client"
     ]
 
     const [inputValue, setInputValue] = useState('');
