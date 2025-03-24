@@ -1,6 +1,6 @@
 from nba import *
 from schema import *
-from server import *
+import server
 from utils import *
 
 import argparse
@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=server.lifespan)
 
 origins = [
     "http://localhost:3000",
@@ -47,10 +47,10 @@ async def websocket_endpoint(websocket: WebSocket):
                 CHAT_ID_FOR_DISCONNECT = chat_id
                 USERNAME_FOR_DISCONNECT = username
                 print(f'[LOG] Client attempting to join the chat room: {chat_id}')
-                STATE[chat_id].user_ws.append(websocket)
+                server.STATE[chat_id].user_ws.append(websocket)
                 
                 # send state back to client
-                msg_json = [message.model_dump() for message in STATE[chat_id].messages]
+                msg_json = [message.model_dump() for message in server.STATE[chat_id].messages]
 
                 updated_chat_information = {
                     "type": "update",
@@ -68,12 +68,12 @@ async def websocket_endpoint(websocket: WebSocket):
                     text=message["text"],
                     timestamp=get_current_timestamp()
                 )
-                STATE[chat_id].messages.append(chat_message)
-                msg_json = [message.model_dump() for message in STATE[chat_id].messages]
+                server.STATE[chat_id].messages.append(chat_message)
+                msg_json = [message.model_dump() for message in server.STATE[chat_id].messages]
 
                 updated_chat_information = {
                     "type": "update",
-                    "port": SELF_PORT[0],
+                    "port": server.SELF_PORT[0],
                     "chat_id": chat_id,
                     "messages": msg_json
                 }
@@ -85,9 +85,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 await update_servers(updated_chat_information)
 
     except WebSocketDisconnect:
-        if CHAT_ID_FOR_DISCONNECT is not None and websocket in STATE[CHAT_ID_FOR_DISCONNECT].user_ws:
+        if CHAT_ID_FOR_DISCONNECT is not None and websocket in server.STATE[CHAT_ID_FOR_DISCONNECT].user_ws:
             print(f'[LOG] {USERNAME_FOR_DISCONNECT} has disconnected from chat room {CHAT_ID_FOR_DISCONNECT}. Removing from chat room list')
-            STATE[CHAT_ID_FOR_DISCONNECT].user_ws.remove(websocket)
+            server.STATE[CHAT_ID_FOR_DISCONNECT].user_ws.remove(websocket)
 
 
 @app.websocket("/ws/servers/link-nodes")
@@ -104,9 +104,11 @@ async def link_server(websocket: WebSocket):
                 PORT_FOR_DISCONNECT = target_port
                 print(f'[LOG] Received connection from port: {target_port}')
 
-                if ACTIVE_CONNECTIONS[target_port] is None:
+                if server.ACTIVE_CONNECTIONS[target_port] is None:
                     print(f'[LOG] Connection to {target_port} does not exist. Creating reciprocol connection...')
-                    asyncio.create_task(create_reciprocol_connection(SELF_PORT[0], target_port))
+                    asyncio.create_task(server.create_reciprocol_connection(server.SELF_PORT[0], target_port))
+                    
+                    await leader_election()
                 else:
                     print(f'[LOG] Connection to {target_port} already exists')
 
@@ -131,25 +133,26 @@ async def link_server(websocket: WebSocket):
                     )
                     new_messages.append(message_obj)
 
-                STATE[chat_id].messages = new_messages
+                server.STATE[chat_id].messages = new_messages
                 
                 print(f'[LOG] State updated from server at port: {port}')
             
             if message["type"] == "leader":
                 leader = message["leader"]
-                LEADER = leader
-                print(f'[LOG] New leader instated: {leader}')
+                if server.LEADER != leader:
+                    server.LEADER = leader
+                    print(f'[LOG] New leader instated: {leader}')
 
     except WebSocketDisconnect:
         print(f'[LOG] A peer server on port {PORT_FOR_DISCONNECT} has disconnected, removing from active connections')
-        ACTIVE_CONNECTIONS[PORT_FOR_DISCONNECT] = None
+        server.ACTIVE_CONNECTIONS[PORT_FOR_DISCONNECT] = None
         
         await leader_election()
 
 
 @app.post("/servers/update")
 async def update_servers(updated_chat_info: dict):
-    for port, websocket in ACTIVE_CONNECTIONS.items():
+    for port, websocket in server.ACTIVE_CONNECTIONS.items():
         if websocket:
             try: 
                 # This is a python websocket, not a FastAPI websocket
@@ -157,47 +160,52 @@ async def update_servers(updated_chat_info: dict):
                 print(f'[LOG] Update was delivered to server running on port {port}')
             except Exception as e:
                 print(f'[LOG] Error: Server running on port {port} is not running. Deleting from active connections')
-                ACTIVE_CONNECTIONS[port] = None
+                server.ACTIVE_CONNECTIONS[port] = None
                 print(f"[LOG] Error info: {e}")
 
 
 async def update_clients(updated_chat_info: dict, chat_id: int):
-    for websocket in STATE[chat_id].user_ws:
+    for websocket in server.STATE[chat_id].user_ws:
         try:
             await websocket.send_json(json.dumps(updated_chat_info))
         except WebSocketDisconnect:
             print(f'[LOG] A client has disconnected from chat room {chat_id}. Removing from chat room list')
-            STATE[chat_id].user_ws.remove(websocket)
+            server.STATE[chat_id].user_ws.remove(websocket)
         except Exception as e:
             print(f"[LOG] An unexpected error occured: {e}")
 
 
 @app.post("/servers/leader")
 async def leader_election():
-    if LEADER != SELF_PORT[0]:
-        smallestActive = SELF_PORT[0]
+    smallestActive = server.SELF_PORT[0]
+    
+    # Find who should be the next leader (Smallest port number)
+    for server_port in server.ACTIVE_CONNECTIONS.keys():
+        # If there is an active connection to a server port smaller than current port
+        if (int(server_port) < smallestActive) and (server.ACTIVE_CONNECTIONS[server_port] != None):
+            smallestActive = server_port
+    
+    # If own port is the leader, announce to everyone
+    if smallestActive == server.SELF_PORT[0]:
+        if server.LEADER != server.SELF_PORT[0]:
+            server.LEADER = server.SELF_PORT[0]
+            print(f'[LOG] New leader instated: {server.LEADER}')
         
-        for server_port in ACTIVE_CONNECTIONS.keys():
-            # If there is an active connection to a server port smaller than current port
-            if (int(server_port) < smallestActive) and (ACTIVE_CONNECTIONS[server_port] != None):
-                smallestActive = server_port
+        leader_message = {
+            "type": "leader",
+            "leader": server.SELF_PORT[0]
+        }
         
-        if smallestActive == SELF_PORT[0]:
-            leader_message = {
-                "type": "leader",
-                "leader": SELF_PORT[0]
-            }
-            
-            for port, websocket in ACTIVE_CONNECTIONS.items():
-                if websocket:
-                    try: 
-                        # This is a python websocket, not a FastAPI websocket
-                        await websocket.send(json.dumps(leader_message))
-                        print(f'[LOG] Leader was delivered to server running on port {port}')
-                    except Exception as e:
-                        print(f'[LOG] Error: Server running on port {port} is not running. Deleting from active connections')
-                        ACTIVE_CONNECTIONS[port] = None
-                        print(f"[LOG] Error info: {e}")
+        for port, websocket in server.ACTIVE_CONNECTIONS.items():
+            if websocket:
+                try: 
+                    # This is a python websocket, not a FastAPI websocket
+                    await websocket.send(json.dumps(leader_message))
+                    print(f'[LOG] Leader was delivered to server running on port {port}')
+                except Exception as e:
+                    print(f'[LOG] Error: Server running on port {port} is not running. Deleting from active connections')
+                    server.ACTIVE_CONNECTIONS[port] = None
+                    print(f"[LOG] Error info: {e}")
 
 
 @app.get("/get/ping-server")
