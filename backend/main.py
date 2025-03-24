@@ -113,7 +113,7 @@ async def link_server(websocket: WebSocket):
                     print(f'[LOG] Connection to {target_port} already exists')
 
             if message["type"] == "reciprocol_connection":
-                port = message["port"]
+                port = int(message["port"])
                 PORT_FOR_DISCONNECT = port
                 print(f'[LOG] Recieved reciprocol connection from port: {port}')
 
@@ -139,13 +139,12 @@ async def link_server(websocket: WebSocket):
             
             if message["type"] == "leader":
                 leader = message["leader"]
-                if server.LEADER != leader:
-                    server.LEADER = leader
-                    print(f'[LOG] New leader instated: {leader}')
+                server.LEADER = leader
+                print(f'[LOG] New leader instated: {leader}')
 
     except WebSocketDisconnect:
         print(f'[LOG] A peer server on port {PORT_FOR_DISCONNECT} has disconnected, removing from active connections')
-        server.ACTIVE_CONNECTIONS[PORT_FOR_DISCONNECT] = None
+        server.ACTIVE_CONNECTIONS[int(PORT_FOR_DISCONNECT)] = None
         
         await leader_election()
 
@@ -187,9 +186,8 @@ async def leader_election():
     
     # If own port is the leader, announce to everyone
     if smallestActive == server.SELF_PORT[0]:
-        if server.LEADER != server.SELF_PORT[0]:
-            server.LEADER = server.SELF_PORT[0]
-            print(f'[LOG] New leader instated: {server.LEADER}')
+        server.LEADER = server.SELF_PORT[0]
+        print(f'[LOG] New leader instated: {server.LEADER}')
         
         leader_message = {
             "type": "leader",
