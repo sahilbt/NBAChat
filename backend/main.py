@@ -217,7 +217,7 @@ async def ping_server():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, required=True, help='Port number to run server on')
-    parser.add_argument('--host', type=str, required=True, help='Host to bind the server to')
+    parser.add_argument('--host', default='localhost', type=str, required=True, help='Host to bind the server to')
     args = parser.parse_args()
     app.state.port = args.port
     app.state.host = args.host
