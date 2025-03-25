@@ -18,16 +18,16 @@ STATE = [ChatRoom(chat_id = 0,messages = [],user_ws = []),
          ChatRoom(chat_id = 2,messages = [],user_ws = [])]
 
 ACTIVE_CONNECTIONS = {
-    8000: None,
-    8001: None,
-    8002: None,
-    8003: None
+    'csx1:8000': None,
+    'csx2:8001': None,
+    'csx3:8002': None,
+    'csx3:8003': None,
 }
 
 LEADER = None
 
-async def check_server_running(port: int):
-    url = f'http://localhost:{port}/get/ping-server'
+async def check_server_running(server: int):
+    url = f'http://{server}/get/ping-server'
     try:
         data = requests.get(url=url)
         if data.status_code == 200:
@@ -38,58 +38,58 @@ async def check_server_running(port: int):
     return False
 
 
-async def create_connection(self_port: int, target_port: int):
-    uri = f'ws://localhost:{target_port}/ws/servers/link-nodes'
+async def create_connection(self_server: int, target_server: int):
+    uri = f'ws://{target_server}/ws/servers/link-nodes'
     try:
         websocket = await websockets.connect(uri)
-        print(f'[LOG] Connected to {target_port}')
-        ACTIVE_CONNECTIONS[target_port] = websocket
+        print(f'[LOG] Connected to {target_server}')
+        ACTIVE_CONNECTIONS[target_server] = websocket
 
-        message = {"type": "first_connection", "port": f"{self_port}"}
+        message = {"type": "first_connection", "server": f"{self_server}"}
         await websocket.send(json.dumps(message))
     except WebSocketDisconnect:
-        ACTIVE_CONNECTIONS[target_port] = None
+        ACTIVE_CONNECTIONS[target_server] = None
 
-async def create_reciprocol_connection(self_port: int, target_port: int):
-    uri = f'ws://localhost:{target_port}/ws/servers/link-nodes'
+async def create_reciprocol_connection(self_server: int, target_server: int):
+    uri = f'ws://{target_server}/ws/servers/link-nodes'
     try:
         websocket = await websockets.connect(uri)
-        print(f'[LOG] Connected to {target_port}')
-        ACTIVE_CONNECTIONS[target_port] = websocket
+        print(f'[LOG] Connected to {target_server}')
+        ACTIVE_CONNECTIONS[target_server] = websocket
 
-        message = {"type": "reciprocol_connection", "port": f"{self_port}"}
+        message = {"type": "reciprocol_connection", "server": f"{self_server}"}
         await websocket.send(json.dumps(message))
 
         for chat_id, c in enumerate(STATE):
-            print(f'[LOG] Updating {target_port} with message state for chat id: {chat_id}')
+            print(f'[LOG] Updating {target_server} with message state for chat id: {chat_id}')
             msg_json = [message.model_dump() for message in STATE[chat_id].messages]
             updated_chat_information = {
                     "type": "update",
-                    "port": SELF_PORT[0],
+                    "server": SELF_PORT[0],
                     "chat_id": chat_id,
                     "messages": msg_json
             }
             await websocket.send(json.dumps(updated_chat_information))
 
     except WebSocketDisconnect:
-        ACTIVE_CONNECTIONS[target_port] = None
+        ACTIVE_CONNECTIONS[target_server] = None
 
 
 async def connect_to_servers(port: int):
-    for server_port in ACTIVE_CONNECTIONS.keys():
+    for server in ACTIVE_CONNECTIONS.keys():
         # Skip self-connection
-        if server_port == port:
+        if server == port:
             continue 
-        if await check_server_running(server_port):
-           asyncio.create_task(create_connection(port, server_port))
+        if await check_server_running(server):
+           asyncio.create_task(create_connection(port, server))
         else:
-            print(f'[LOG] Server on port {server_port} is not running')
+            print(f'[LOG] {server} is not running')
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print('[LOG] Starting server ...')
-    SELF_PORT.append(app.state.port)
+    SELF_PORT.append(f'{app.state.host}:{app.state.port}')
     
     await connect_to_servers(SELF_PORT[0])
     yield
