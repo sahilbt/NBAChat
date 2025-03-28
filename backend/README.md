@@ -14,18 +14,11 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Add a file called `.env` and copy content from `.env.example`. Add your actual MongoDB credentials
-```
-# .env
-MONGO_USER=USERNAME
-MONGO_PASSWORD=PASSWORD
-```
-
 ## Running single server
 
-1. Initialize server and specify port number
+1. Initialize server and specify hostname and port number
 ```
-python3 main.py --port 8000
+python3 main.py --host csx1 --port 8000
 ```
 
 ## Running multiple servers
@@ -36,13 +29,17 @@ For example, given the ports `[8000, 8001, 8002]`, the primary server would be 8
 
 1. Initialize primary server
 ```
-python3 main.py --port 8000
+python3 main.py --host csx1 --port 8000
 ```
 2. Initialize replica servers
 ```
-python3 main.py --port 8001
-python3 main.py --port 8002
+python3 main.py --host csx2 --port 8001
+python3 main.py --host csx3 --port 8002
+python3 main.py --host csx4 --port 8002
 ```
+**Note:** 
+- This is assuming you're running on University of Calgary linux machines
+- If no argument is provided, it'll default to localhost.
 
 ## Testing
 

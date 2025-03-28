@@ -7,10 +7,10 @@ import { GAMES } from '../CurrentGames/games';
 
 const LiveChat = () => {
     const connections = [
-        "ws://localhost:8000/ws/client/link_client",
-        "ws://localhost:8001/ws/client/link_client",
-        "ws://localhost:8002/ws/client/link_client",
-        "ws://localhost:8003/ws/client/link_client"
+        "ws://csx1:8000/ws/client/link_client",
+        "ws://csx2:8001/ws/client/link_client",
+        "ws://csx3:8002/ws/client/link_client",
+        "ws://csx3:8003/ws/client/link_client",
     ]
 
     const [inputValue, setInputValue] = useState('');
