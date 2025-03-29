@@ -1,14 +1,27 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import BackButton from "@/app/shared/ui/BackButton";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { GAMES } from "./games"; // Import the GAMES data
 
 function LiveGames() {
+  const [todaysGames, setTodaysGames] = useState([]);
   const searchParams = useSearchParams();
   const username = searchParams.get("username") || ""; // Extract username from query params
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/get/todays_games')
+      .then(response => response.json())
+      .then(data => {
+        setTodaysGames(data.message);
+        console.log(todaysGames); // check games
+      })
+      .catch(error => {
+        console.error('There was an issue fetching the games:', error);
+      });
+  }, [])
+
 
   return (
     <div className="flex flex-col items-center bg-gradient-to-r from-blue-900 via-white to-red-600 py-10 w-full">
@@ -17,7 +30,7 @@ function LiveGames() {
       <h3 className="text-3xl font-extrabold text-blue-900 border-b-4 border-red-600 pb-2 mb-8">Current Games</h3>
       <div className="border-4 border-blue-500 rounded-2xl p-6 w-[90%] max-w-4xl bg-white shadow-xl">
         <div className="flex flex-col gap-5">
-          {GAMES.map((game) => (
+          {todaysGames.map((game) => (
             <Link
               key={game.id}
               href={`/game/${game.id}?username=${encodeURIComponent(username)}`} // Preserve username
