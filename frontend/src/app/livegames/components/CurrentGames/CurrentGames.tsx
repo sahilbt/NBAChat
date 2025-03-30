@@ -15,7 +15,6 @@ function LiveGames() {
       .then(response => response.json())
       .then(data => {
         setTodaysGames(data.message);
-        console.log(todaysGames); // check games
       })
       .catch(error => {
         console.error('There was an issue fetching the games:', error);
