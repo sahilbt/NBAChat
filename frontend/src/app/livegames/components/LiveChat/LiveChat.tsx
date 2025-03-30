@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams } from "next/navigation";
 import { IoIosSend } from "react-icons/io";
 import Message from "./Message";
-import { GAMES } from '../CurrentGames/games';
 import BackButton from '@/app/shared/ui/BackButton';
 
 const LiveChat = () => {
@@ -19,7 +18,8 @@ const LiveChat = () => {
     const socket = useRef<WebSocket | null>(null);
     const isClosingOrClosed = useRef(false);
     const params = useParams();
-    const gameId = Number(params.gameId); // Extract game ID from the URL
+    const gameId = params.gameId?.toString();
+    const [currentGame, setCurrentGame] = useState<{ id: number; homeTeam: string; awayTeam: string } | null>(null);
     const searchParams = useSearchParams();
     const query_username = searchParams.get("username")
     const [currentConnection, setCurrentConnection] = useState(0);
@@ -71,10 +71,6 @@ const LiveChat = () => {
         };
     }, [currentConnection]);
 
-    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     setInputValue(e.target.value);
-    // };
-
     const sendMessage = () => {
         if (socket.current && socket.current.readyState === WebSocket.OPEN) {
             const json = {
@@ -91,45 +87,25 @@ const LiveChat = () => {
         }
     };
 
-    // for sake of demo
-    function FindGame(gameId: number) {
-        return GAMES.find(game => game.id === gameId) ?? { id: -1, homeTeam: "N/A", awayTeam: "N/A" };
-    }
-
-    // return (
-    //     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-900 via-white to-red-600">
-    //         <div className="border-4 border-blue-500 w-[80%] h-[90vh] flex flex-col items-center bg-white shadow-xl rounded-2xl p-6">
-    //             <h1 className="text-4xl pb-2 pt-4 font-extrabold text-blue-900">{FindGame(gameId).awayTeam} @ {FindGame(gameId)?.homeTeam}</h1>
-    //             <div className="border-2 border-gray-300 h-[65%] w-[95%] p-3 overflow-y-auto rounded-lg bg-gray-50 shadow-inner">
-    //                 {messages.map((message: any, index: number) => (
-    //                     <Message key={index} user={message.username} content={message.text} />
-    //                 ))}
-    //             </div>
-    //             <div className="flex items-center w-[95%] h-[10%] mt-3">
-    //                 <div className="border-2 border-gray-400 rounded-lg flex-grow p-2 bg-white shadow-md">
-    //                     <input
-    //                         className="w-full h-full outline-none bg-transparent text-lg"
-    //                         placeholder="Type here..."
-    //                         value={inputValue}
-    //                         onChange={(e) => setInputValue(e.target.value)}
-    //                     />
-    //                 </div>
-    //                 <button
-    //                     className="ml-3 bg-blue-700 text-white p-3 rounded-lg hover:bg-red-600 transition shadow-lg"
-    //                     onClick={sendMessage}
-    //                 >
-    //                     <IoIosSend className="w-6 h-6" />
-    //                 </button>
-    //             </div>
-    //         </div>
-    //     </div>
-    // )
+    // get game
+    useEffect(() => {
+        if (!gameId) return;
+        fetch('http://127.0.0.1:8000/get/todays_games')
+            .then(response => response.json())
+            .then(data => {
+                setCurrentGame(data.message.find(game => game.id === gameId)); // Assuming API response contains a 'message' field with the game details
+            })
+            .catch(error => {
+                console.error("Error fetching game data:", error);
+                setCurrentGame({ id: -1, homeTeam: "N/A", awayTeam: "N/A" }); // Fallback if API fails
+            });
+    }, [gameId]);
 
     return (
         <div className="relative flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-900 via-white to-red-600">
             <BackButton />
             <div className="border-4 border-blue-500 w-[80%] h-[90vh] flex flex-col items-center bg-white shadow-xl rounded-2xl p-6">
-                <h1 className="text-4xl pb-2 pt-4 font-extrabold text-blue-900">{FindGame(gameId).awayTeam} @ {FindGame(gameId)?.homeTeam}</h1>
+                <h1 className="text-4xl pb-2 pt-4 font-extrabold text-blue-900">{currentGame?.awayTeam} @ {currentGame?.homeTeam}</h1>
                 <div className="border-2 border-gray-300 h-[65%] w-[95%] p-3 overflow-y-auto rounded-lg bg-gray-50 shadow-inner">
                     {messages.map((message: any, index: number) => (
                         <Message key={index} user={message.username} content={message.text} />
