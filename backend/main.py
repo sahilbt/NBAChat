@@ -107,7 +107,7 @@ async def link_server(websocket: WebSocket):
 
                 if server_state.ACTIVE_CONNECTIONS[server] is None:
                     print(f'[LOG] Connection to {server} does not exist. Creating reciprocol connection...')
-                    asyncio.create_task(server_state.create_reciprocol_connection(server_state.SELF_PORT[0], server))
+                    await server_state.create_reciprocol_connection(server_state.SELF_PORT[0], server)
                     
                     await leader_election()
                 else:
@@ -117,6 +117,7 @@ async def link_server(websocket: WebSocket):
                 server = message["server"]
                 SERVER_FOR_DISCONNECT = server
                 print(f'[LOG] Recieved reciprocol connection from server: {server}')
+                await leader_election()
 
             if message["type"] == "update":
                 server = message["server"]
@@ -140,7 +141,7 @@ async def link_server(websocket: WebSocket):
             
             if message["type"] == "leader":
                 leader = message["leader"]
-                server_state.LEADER = leader
+                server_state.LEADER[0] = leader
                 print(f'[LOG] New leader instated: {leader}')
 
     except WebSocketDisconnect:
@@ -189,8 +190,8 @@ async def leader_election():
     
     # If own port is the leader, announce to everyone
     if smallest_active_server == server_state.SELF_PORT[0]:
-        server_state.LEADER = server_state.SELF_PORT[0]
-        print(f'[LOG] New leader instated: {server_state.LEADER}')
+        server_state.LEADER[0] = server_state.SELF_PORT[0]
+        print(f'[LOG] New leader instated: {server_state.LEADER[0]}')
         
         leader_message = {
             "type": "leader",

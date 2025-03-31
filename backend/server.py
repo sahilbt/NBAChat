@@ -24,7 +24,7 @@ ACTIVE_CONNECTIONS = {
     'csx3:8003': None,
 }
 
-LEADER = None
+LEADER = []
 
 async def check_server_running(server: int):
     url = f'http://{server}/get/ping-server'
@@ -90,6 +90,7 @@ async def connect_to_servers(port: int):
 async def lifespan(app: FastAPI):
     print('[LOG] Starting server ...')
     SELF_PORT.append(f'{app.state.host}:{app.state.port}')
+    LEADER.append(f'{app.state.host}:{app.state.port}')
     
     await connect_to_servers(SELF_PORT[0])
     yield
