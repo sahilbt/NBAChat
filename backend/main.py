@@ -180,13 +180,11 @@ async def update_clients(updated_chat_info: dict, chat_id: int):
 async def leader_election():
     smallest_active_server = server_state.SELF_PORT[0]
     # Find who should be the next leader (Smallest port number)
-    for server in server_state.ACTIVE_CONNECTIONS.keys():
-        server_port = int(server.split(':')[1])
-        
+    for server_port in server_state.ACTIVE_CONNECTIONS.keys():        
         # If there is an active connection to a server port smaller than current port
-        smallestActivePort = int(server_state.SELF_PORT[0].split(':')[1])
-        if (server_port < smallestActivePort) and (server_state.ACTIVE_CONNECTIONS[server] != None):
-            smallest_active_server = server
+        smallestActivePort = server_state.SELF_PORT[0]
+        if (server_port < smallestActivePort) and (server_state.ACTIVE_CONNECTIONS[server_port] != None):
+            smallest_active_server = server_port
     
     # If own port is the leader, announce to everyone
     if smallest_active_server == server_state.SELF_PORT[0]:
@@ -218,7 +216,7 @@ async def ping_server():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, required=True, help='Port number to run server on')
-    parser.add_argument('--host', default='localhost', type=str, required=True, help='Host to bind the server to')
+    parser.add_argument('--host', default='localhost', type=str, help='Host to bind the server to')
     args = parser.parse_args()
     app.state.port = args.port
     app.state.host = args.host
