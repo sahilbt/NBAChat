@@ -20,6 +20,15 @@ class Message(BaseModel):
     username: str
     text: str
     timestamp: float
+    
+    def __lt__(self, other):
+        return self.timestamp < other.timestamp
+    
+    def __gt__(self, other):
+        return self.timestamp > other.timestamp
+    
+    def __eq__(self, other):
+        return self.timestamp == other.timestamp
 
 class ChatRoom(BaseModel):
     model_config = MODEL_CONFIG
