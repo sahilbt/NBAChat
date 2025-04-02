@@ -16,9 +16,9 @@ pip install -r requirements.txt
 
 ## Running single server
 
-1. Initialize server and specify hostname and port number
+1. Initialize server and specify port number and hostname (optional)
 ```
-python3 main.py --host csx1 --port 8000
+python3 main.py --port 8000
 ```
 
 ## Running multiple servers
@@ -29,13 +29,13 @@ For example, given the ports `[8000, 8001, 8002]`, the primary server would be 8
 
 1. Initialize primary server
 ```
-python3 main.py --host csx1 --port 8000
+python3 main.py --port 8000
 ```
 2. Initialize replica servers
 ```
-python3 main.py --host csx2 --port 8001
-python3 main.py --host csx3 --port 8002
-python3 main.py --host csx4 --port 8002
+python3 main.py --port 8001
+python3 main.py --port 8002
+python3 main.py --port 8002
 ```
 **Note:** 
 - This is assuming you're running on University of Calgary linux machines

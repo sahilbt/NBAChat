@@ -22,6 +22,7 @@ ACTIVE_CONNECTIONS = {
     8001: None,
     8002: None,
     8003: None,
+    8004: None,
 }
 
 LEADER = []

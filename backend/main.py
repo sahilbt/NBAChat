@@ -4,7 +4,7 @@ import server as server_state
 from utils import *
 
 import argparse
-import asyncio
+import heapq
 import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -68,7 +68,18 @@ async def websocket_endpoint(websocket: WebSocket):
                     text=message["text"],
                     timestamp=get_current_timestamp()
                 )
+                
                 server_state.STATE[chat_id].messages.append(chat_message)
+                
+                priority_queue = server_state.STATE[chat_id].messages
+                # Maintain order of messages using min-heap
+                heapq.heapify(priority_queue)
+                ordered_messages = []
+                while priority_queue:
+                    message = heapq.heappop(priority_queue)
+                    ordered_messages.append(message)
+
+                server_state.STATE[chat_id].messages = ordered_messages
                 msg_json = [message.model_dump() for message in server_state.STATE[chat_id].messages]
 
                 updated_chat_information = {
