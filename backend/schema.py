@@ -32,6 +32,6 @@ class Message(BaseModel):
 
 class ChatRoom(BaseModel):
     model_config = MODEL_CONFIG
-    chat_id: int
+    chat_id: str
     messages: List[Message]
     user_ws: List[WebSocket]

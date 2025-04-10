@@ -1,3 +1,4 @@
+from nba import *
 from schema import *
 from utils import *
 
@@ -13,10 +14,9 @@ import json
 SELF_PORT = []
 
 # Local State of ChatRooms
-STATE = [ChatRoom(chat_id = 0,messages = [],user_ws = []), 
-         ChatRoom(chat_id = 1,messages = [],user_ws = []),
-         ChatRoom(chat_id = 2,messages = [],user_ws = [])]
+STATE = {}
 
+# List of ports of peer servers
 ACTIVE_CONNECTIONS = {
     8000: None,
     8001: None,
@@ -27,6 +27,7 @@ ACTIVE_CONNECTIONS = {
 
 LEADER = []
 
+# Method to check if a server is running by pinging it
 async def check_server_running(server: int):
     url = f'http://localhost:{server}/get/ping-server'
     try:
@@ -38,7 +39,7 @@ async def check_server_running(server: int):
     
     return False
 
-
+# Creating websocket connection for newly spawned server
 async def create_connection(self_server: int, target_server: int):
     uri = f'ws://localhost:{target_server}/ws/servers/link-nodes'
     try:
@@ -51,6 +52,7 @@ async def create_connection(self_server: int, target_server: int):
     except WebSocketDisconnect:
         ACTIVE_CONNECTIONS[target_server] = None
 
+# Creating websocket connection from existing servers to a newly spawned server
 async def create_reciprocol_connection(self_server: int, target_server: int):
     uri = f'ws://localhost:{target_server}/ws/servers/link-nodes'
     try:
@@ -61,6 +63,7 @@ async def create_reciprocol_connection(self_server: int, target_server: int):
         message = {"type": "reciprocol_connection", "server": self_server}
         await websocket.send(json.dumps(message))
 
+        # Send updated chat information to new server from existing servers
         for chat_id, c in enumerate(STATE):
             print(f'[LOG] Updating {target_server} with message state for chat id: {chat_id}')
             msg_json = [message.model_dump() for message in STATE[chat_id].messages]
@@ -75,7 +78,7 @@ async def create_reciprocol_connection(self_server: int, target_server: int):
     except WebSocketDisconnect:
         ACTIVE_CONNECTIONS[target_server] = None
 
-
+# Creating a server with a specified port
 async def connect_to_servers(port: int):
     for server in ACTIVE_CONNECTIONS.keys():
         # Skip self-connection
@@ -86,7 +89,16 @@ async def connect_to_servers(port: int):
         else:
             print(f'[LOG] {server} is not running')
 
+# Populate local state with current game information
+async def populate_state_with_current_games():
+    games = get_live_games()
 
+    for game in games:
+        id = game["id"]
+        STATE[id] = ChatRoom(chat_id = id, messages = [], user_ws = [])
+
+
+# Server startup configuring the port, leader & lives games     
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print('[LOG] Starting server ...')
@@ -94,6 +106,7 @@ async def lifespan(app: FastAPI):
     LEADER.append(app.state.port)
     
     await connect_to_servers(SELF_PORT[0])
+    await populate_state_with_current_games()
     yield
     
     print('[LOG] Server shutting down ...')
