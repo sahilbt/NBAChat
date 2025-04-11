@@ -44,7 +44,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
             # Handle join_chat_room message type
             if message["type"] == "join_chat_room":
-                chat_id = int(message["chat_id"])
+                chat_id = message["chat_id"]
                 username = message["username"]
                 CHAT_ID_FOR_DISCONNECT = chat_id
                 USERNAME_FOR_DISCONNECT = username
@@ -70,7 +70,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 print(f'[LOG] Client attempting to send message: {message}')
 
                 # Add message to local state
-                chat_id = int(message["chat_id"])
+                chat_id = message["chat_id"]
                 chat_message = Message(
                     username=message["username"],
                     text=message["text"],
@@ -147,7 +147,7 @@ async def link_server(websocket: WebSocket):
                 server = message["server"]
                 print(f'[LOG] Received update message from server: {server}')
 
-                chat_id = int(message["chat_id"])
+                chat_id = message["chat_id"]
                 all_messages = message["messages"]
                 new_messages = []
 
