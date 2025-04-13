@@ -54,7 +54,12 @@ const LiveChat = () => {
         socket.current.onmessage = (event) => {
             const rawData = JSON.parse(event.data)
             const data = JSON.parse(rawData)
-            setMessages(data.messages)
+            if (data["type"] == "update") {
+                setMessages(data.messages)
+            } else if (data["type"] == "leader") {
+                console.log("Leader is: " + data["leader"]);
+            }
+            
         };
 
         return () => {

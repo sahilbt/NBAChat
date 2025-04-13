@@ -98,7 +98,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
                 # update servers and clients with new messages
                 print(f'[LOG] Updating all clients with new chat messages')
-                await update_clients(updated_chat_information, chat_id)
+                await update_clients_chat(updated_chat_information, chat_id)
                 print(f'[LOG] Updating all servers with new chat messages')
                 await update_servers(updated_chat_information)
 
@@ -168,6 +168,7 @@ async def link_server(websocket: WebSocket):
                 leader = message["leader"]
                 server_state.LEADER[0] = leader
                 print(f'[LOG] New leader instated: {leader}')
+                await update_clients_leader(message)
 
     except WebSocketDisconnect:
         # Handle disconnect
@@ -192,7 +193,7 @@ async def update_servers(updated_chat_info: dict):
                 print(f"[LOG] Error info: {e}")
 
 # Method to update active clients of new chat information
-async def update_clients(updated_chat_info: dict, chat_id: int):
+async def update_clients_chat(updated_chat_info: dict, chat_id: int):
     # Iterate over all clients for the current chat id and send update via json
     for websocket in server_state.STATE[chat_id].user_ws:
         try:
@@ -202,6 +203,19 @@ async def update_clients(updated_chat_info: dict, chat_id: int):
             server_state.STATE[chat_id].user_ws.remove(websocket)
         except Exception as e:
             print(f"[LOG] An unexpected error occured: {e}")
+
+# Method to update active clients of new leader
+async def update_clients_leader(updated_leader_info: dict):
+    # Iterate over all clients for all chat id and send update via json
+    for chat_id in server_state.STATE:
+        for websocket in server_state.STATE[chat_id].user_ws:
+            try:
+                await websocket.send_json(json.dumps(updated_leader_info))
+            except WebSocketDisconnect:
+                print(f'[LOG] A client has disconnected from chat room {chat_id}. Removing from chat room list')
+                server_state.STATE[chat_id].user_ws.remove(websocket)
+            except Exception as e:
+                print(f"[LOG] An unexpected error occured: {e}")
 
 
 # Route to handle leader election
