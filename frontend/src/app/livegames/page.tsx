@@ -1,21 +1,24 @@
 'use client';
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import CurrentGames from "./components/CurrentGames/CurrentGames";
+// import React, { useEffect } from "react";
+// import { useRouter } from "next/navigation";
+import LiveGames from "./components/CurrentGames/CurrentGames";
+import BackButton from "../shared/ui/BackButton";
 
 function Chatrooms() {
-  // Refresh router when component mounts
-  const router = useRouter();
-  useEffect(() => {
-    router.refresh();
-  }, []);
-
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-900 via-white to-red-600 flex flex-col items-center pt-8">
-      <h1 className="text-5xl font-extrabold text-blue-900 border-b-4 border-red-600 pb-2">NBAChat</h1>
-      <div className="flex h-[70vh] gap-5 mt-12 mx-auto justify-center items-center w-full">
-        <CurrentGames />
-      </div>
+    <div className="min-h-screen w-full bg-gradient-to-r from-blue-900 via-white to-red-600 flex flex-col items-center px-4 py-12">
+      <header className="relative w-full max-w-5xl mb-10">
+        <div className="absolute left-0 top-1">
+          <BackButton />
+        </div>
+        <h1 className="text-5xl font-extrabold text-black drop-shadow-lg text-center">
+          NBAChat
+        </h1>
+      </header>
+
+      <section className="w-full max-w-5xl">
+        <LiveGames />
+      </section>
     </div>
   );
 }
