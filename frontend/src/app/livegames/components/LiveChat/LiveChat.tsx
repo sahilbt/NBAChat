@@ -60,7 +60,7 @@ const LiveChat = () => {
             } else if (data["type"] == "leader") {
                 console.log("Leader is: " + data["leader"]);
             }
-            
+
         };
 
         return () => {
@@ -102,34 +102,44 @@ const LiveChat = () => {
     }, [gameId]);
 
     return (
-        <div className="relative flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-900 via-white to-red-600">
-            <BackButton />
-            <div className="border-4 border-blue-500 w-[80%] h-[90vh] flex flex-col items-center bg-white shadow-xl rounded-2xl p-6">
-                <h1 className="text-4xl pb-2 pt-4 font-extrabold text-blue-900">{currentGame?.awayTeam} @ {currentGame?.homeTeam}</h1>
-                <div className="border-2 border-gray-300 h-[65%] w-[95%] p-3 overflow-y-auto rounded-lg bg-gray-50 shadow-inner">
-                    {messages.map((message: any, index: number) => (
-                        <Message key={index} user={message.username} content={message.text} />
-                    ))}
-                </div>
-                <div className="flex items-center w-[95%] h-[10%] mt-3">
-                    <div className="border-2 border-gray-400 rounded-lg flex-grow p-2 bg-white shadow-md">
-                        <input
-                            className="w-full h-full outline-none bg-transparent text-lg"
-                            placeholder="Type here..."
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                        />
+        <div className="relative min-h-screen bg-gradient-to-r from-blue-900 via-white to-red-600">
+            {/* Back Button fixed to top-left of the screen */}
+            <div className="absolute top-4 left-4 z-50">
+                <BackButton />
+            </div>
+
+            {/* Centered chat container */}
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="border-4 border-blue-500 w-[80%] h-[90vh] flex flex-col items-center bg-white shadow-xl rounded-2xl p-6">
+                    <h1 className="text-4xl pb-2 pt-4 font-extrabold text-blue-900">
+                        {currentGame?.awayTeam} @ {currentGame?.homeTeam}
+                    </h1>
+
+                    <div className="border-2 border-gray-300 h-[65%] w-[95%] p-3 overflow-y-auto rounded-lg bg-gray-50 shadow-inner">
+                        {messages.map((message: any, index: number) => (
+                            <Message key={index} user={message.username} content={message.text} />
+                        ))}
                     </div>
-                    <button
-                        className="ml-3 bg-blue-700 text-white p-3 rounded-lg hover:bg-red-600 transition shadow-lg"
-                        onClick={sendMessage}
-                    >
-                        <IoIosSend className="w-6 h-6" />
-                    </button>
+
+                    <div className="flex items-center w-[95%] h-[10%] mt-3">
+                        <div className="border-2 border-gray-400 rounded-lg flex-grow p-2 bg-white shadow-md">
+                            <input
+                                className="w-full h-full outline-none bg-transparent text-lg"
+                                placeholder="Type here..."
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                            />
+                        </div>
+                        <button
+                            className="ml-3 bg-blue-700 text-white p-3 rounded-lg hover:bg-red-600 transition shadow-lg"
+                            onClick={sendMessage}
+                        >
+                            <IoIosSend className="w-6 h-6" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-
     )
 }
 export default LiveChat;

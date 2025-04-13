@@ -26,6 +26,7 @@ function LiveGames() {
     <div>
       <div className="min-h-screen w-full bg-gradient-to-r from-blue-900 via-white to-red-600 py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
         <div className="w-full max-w-4xl text-center mb-12">
+          {/* <BackButton /> */}
           <h2 className="text-4xl font-extrabold text-black mb-4">Welcome, {username}</h2>
           <h3 className="text-2xl sm:text-3xl font-bold text-blue-900 border-b-4 border-red-600 inline-block pb-2">
             Current Games

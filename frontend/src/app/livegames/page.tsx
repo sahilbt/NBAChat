@@ -1,6 +1,4 @@
 'use client';
-// import React, { useEffect } from "react";
-// import { useRouter } from "next/navigation";
 import LiveGames from "./components/CurrentGames/CurrentGames";
 import BackButton from "../shared/ui/BackButton";
 
