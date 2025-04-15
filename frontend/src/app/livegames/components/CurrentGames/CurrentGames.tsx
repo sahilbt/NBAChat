@@ -21,7 +21,7 @@ function LiveGames() {
           if (response.ok) {
             const data = await response.json();
             setTodaysGames(data.message);
-            return; // Exit on first successful fetch
+            return;
           }
         } catch (error) {
           console.warn(`Server on port ${ports[i]} failed. Trying next...`);
