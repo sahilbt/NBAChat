@@ -12,15 +12,27 @@ function LiveGames() {
 
   // fetch games for today
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/get/todays_games')
-      .then(response => response.json())
-      .then(data => {
-        setTodaysGames(data.message);
-      })
-      .catch(error => {
-        console.error('There was an issue fetching the games:', error);
-      });
-  }, [])
+    const ports = [8000, 8001, 8002, 8003, 8004];
+
+    const fetchFromServers = async () => {
+      for (let i = 0; i < ports.length; i++) {
+        try {
+          const response = await fetch(`http://127.0.0.1:${ports[i]}/get/todays_games`);
+          if (response.ok) {
+            const data = await response.json();
+            setTodaysGames(data.message);
+            return; // Exit on first successful fetch
+          }
+        } catch (error) {
+          console.warn(`Server on port ${ports[i]} failed. Trying next...`);
+        }
+      }
+
+      console.error("All servers failed to respond.");
+    };
+
+    fetchFromServers();
+  }, []);
 
   return (
     <div>
@@ -32,9 +44,7 @@ function LiveGames() {
             Current Games
           </h3>
         </div>
-        {/* <div className="border-4 border-blue-500 rounded-2xl p-6 w-[90%] max-w-4xl bg-white shadow-xl h-1"> */}
         <div className="w-full max-w-4xl bg-white border-4 border-blue-500 rounded-2xl shadow-xl p-6">
-          {/* <div className="flex flex-col gap-5"> */}
           <div className="flex flex-col gap-5 max-h-[60vh] overflow-y-auto pr-2">
             {todaysGames.map((game) => (
               <Link
