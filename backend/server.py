@@ -64,7 +64,7 @@ async def create_reciprocol_connection(self_server: int, target_server: int):
         await websocket.send(json.dumps(message))
 
         # Send updated chat information to new server from existing servers
-        for chat_id, c in enumerate(STATE):
+        for chat_id in STATE.keys():
             print(f'[LOG] Updating {target_server} with message state for chat id: {chat_id}')
             msg_json = [message.model_dump() for message in STATE[chat_id].messages]
             updated_chat_information = {
