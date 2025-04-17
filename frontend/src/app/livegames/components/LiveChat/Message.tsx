@@ -5,7 +5,8 @@ interface MessageContent {
     content: string;
 }
 
-const Message: FC<MessageContent>  = (props) =>{
+// format of messages showing user and the message the user sent
+const Message: FC<MessageContent> = (props) => {
     return (
         <div className="h-[10%] w-full">
             <p>{props.user}: {props.content}</p>

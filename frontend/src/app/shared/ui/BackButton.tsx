@@ -1,8 +1,8 @@
 "use client";
-// import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
+// shared back button component for all pages
 const BackButton = ({ label = 'Back' }) => {
   const router = useRouter();
   return (

@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import BackButton from "@/app/shared/ui/BackButton";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -15,6 +14,7 @@ function LiveGames() {
     const ports = [8000, 8001, 8002, 8003, 8004];
 
     const fetchFromServers = async () => {
+      // trying to fetch games from available servers
       for (let i = 0; i < ports.length; i++) {
         try {
           const response = await fetch(`http://127.0.0.1:${ports[i]}/get/todays_games`);
@@ -37,8 +37,8 @@ function LiveGames() {
   return (
     <div>
       <div className="min-h-screen w-full bg-gradient-to-r from-blue-900 via-white to-red-600 py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+        {/* header */}
         <div className="w-full max-w-4xl text-center mb-12">
-          {/* <BackButton /> */}
           <h2 className="text-4xl font-extrabold text-black mb-4">Welcome, {username}</h2>
           <h3 className="text-2xl sm:text-3xl font-bold text-blue-900 border-b-4 border-red-600 inline-block pb-2">
             Current Games
@@ -46,6 +46,7 @@ function LiveGames() {
         </div>
         <div className="w-full max-w-4xl bg-white border-4 border-blue-500 rounded-2xl shadow-xl p-6">
           <div className="flex flex-col gap-5 max-h-[60vh] overflow-y-auto pr-2">
+            {/* display all games */}
             {todaysGames.map((game) => (
               <Link
                 key={game.id}

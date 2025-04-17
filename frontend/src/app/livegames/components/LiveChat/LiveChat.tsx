@@ -6,6 +6,7 @@ import Message from "./Message";
 import BackButton from '@/app/shared/ui/BackButton';
 
 const LiveChat = () => {
+    // available servers/ws connections
     const connections = [
         "ws://localhost:8000/ws/client/link_client",
         "ws://localhost:8001/ws/client/link_client",
@@ -24,6 +25,7 @@ const LiveChat = () => {
     const query_username = searchParams.get("username")
     const [currentConnection, setCurrentConnection] = useState(0);
 
+    // use effect to initiate connection to chatroom
     useEffect(() => {
         console.log("Trying to connect to " + connections[currentConnection])
         socket.current = new WebSocket(connections[currentConnection]);
@@ -42,16 +44,19 @@ const LiveChat = () => {
             }
         };
 
+        // handle socket error
         socket.current.onerror = (error) => {
             setCurrentConnection((currentConnection + 1) % connections.length)
             console.error("WebSocket error for sending:", error);
         };
 
+        // handle socket closing
         socket.current.onclose = () => {
             setCurrentConnection((currentConnection + 1) % connections.length)
             console.log("WebSocket for sending messages closed");
         };
 
+        // handle socket message send
         socket.current.onmessage = (event) => {
             const rawData = JSON.parse(event.data)
             const data = JSON.parse(rawData)
@@ -71,6 +76,7 @@ const LiveChat = () => {
         };
     }, [currentConnection]);
 
+    // send message fucntion
     const sendMessage = () => {
         if (socket.current && socket.current.readyState === WebSocket.OPEN) {
             const json = {
@@ -87,7 +93,7 @@ const LiveChat = () => {
         }
     };
 
-    // get game
+    // get game for header of chatroom
     useEffect(() => {
         if (!gameId) return;
         fetch('http://127.0.0.1:8000/get/todays_games')
@@ -114,13 +120,13 @@ const LiveChat = () => {
                     <h1 className="text-4xl pb-2 pt-4 font-extrabold text-blue-900">
                         {currentGame?.awayTeam} @ {currentGame?.homeTeam}
                     </h1>
-
+                    {/* message box with all chatroom messages */}
                     <div className="border-2 border-gray-300 h-[65%] w-[95%] p-3 overflow-y-auto rounded-lg bg-gray-50 shadow-inner">
                         {messages.map((message: any, index: number) => (
                             <Message key={index} user={message.username} content={message.text} />
                         ))}
                     </div>
-
+                    {/* textbox for user to send message */}
                     <div className="flex items-center w-[95%] h-[10%] mt-3">
                         <div className="border-2 border-gray-400 rounded-lg flex-grow p-2 bg-white shadow-md">
                             <input
@@ -130,6 +136,7 @@ const LiveChat = () => {
                                 onChange={(e) => setInputValue(e.target.value)}
                             />
                         </div>
+                        {/* send button */}
                         <button
                             className="ml-3 bg-blue-700 text-white p-3 rounded-lg hover:bg-red-600 transition shadow-lg"
                             onClick={sendMessage}
