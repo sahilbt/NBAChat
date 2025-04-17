@@ -65,7 +65,10 @@ https://localhost:8001/docs
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ### Installation
-Download [Node.js](https://nodejs.org/) then in a terminal type `npm install next@latest react@latest react-dom@latest`
+Download [Node.js](https://nodejs.org/) then in a terminal type
+```
+npm install next@latest react@latest react-dom@latest
+```
 
 ### Getting Started
 
