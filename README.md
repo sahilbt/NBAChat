@@ -1,6 +1,6 @@
 # CPSC559
 
-## Server backend
+## Server Backend
 
 ### Installation
 
@@ -16,14 +16,14 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Running single server
+### Running Single Server
 
 1. Initialize server and specify port number and hostname (optional)
 ```
 python3 main.py --port 8000
 ```
 
-### Running multiple servers
+### Running Multiple Servers
 
 With the current implementation, it's assumed that the server with lowest value/first server to be instantiated is the primary server.
 
@@ -60,3 +60,25 @@ https://localhost:8001/docs
 3. Send a message using the `/post/servers/message/{port}` endpoint. Specify the `port = 8000`
 
 4. Check terminal of server running on port 8000 for the results
+
+## Server Frontend
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+### Installation
+Download [Node.js](https://nodejs.org/) then in a terminal type `npm install next@latest react@latest react-dom@latest`
+
+### Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
